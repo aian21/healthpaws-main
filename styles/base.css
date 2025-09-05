@@ -1,0 +1,53 @@
+/* CSS Reset (modern minimal) */
+*,*::before,*::after{box-sizing:border-box}
+*{margin:0}
+html,body{height:100%}
+img,svg,video,canvas{display:block;max-width:100%}
+input,button,textarea,select{font:inherit}
+/* Theme */
+:root{
+  --brand-500:#2a8c82; /* teal */
+  --brand-600:#1f6f69;
+  --brand-50:#e9f7f6;
+  --accent-500:#f59e0b; /* amber */
+  --ink-900:#0a1214;
+  --ink-700:#253135;
+  --ink-600:#344449;
+  --ink-500:#4e676e;
+  --bg-0:#f7fbfb;
+  --bg-1:#ffffff;
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:10px;
+  --shadow-lg:0 20px 50px rgba(22, 46, 46, .15);
+  --shadow-md:0 10px 30px rgba(22, 46, 46, .12);
+  --shadow-sm:0 4px 12px rgba(22, 46, 46, .10);
+}
+body{
+  font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--ink-700);
+  background:linear-gradient(180deg, var(--bg-0), #ffffff 60%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+.container{width:min(1100px, 92%); margin-inline:auto}
+.section{padding:80px 0}
+h1,h2,h3{color:var(--ink-900); letter-spacing:-0.02em}
+h1{font-family:"Poppins", system-ui, sans-serif; font-weight:700; font-size:clamp(32px, 4.2vw, 48px)}
+h2{font-weight:700; font-size:clamp(24px, 3vw, 36px); margin-bottom:18px}
+h3{font-weight:600; font-size:20px}
+p{line-height:1.7}
+ul{padding-left:1.2rem}
+a{color:var(--brand-600); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Buttons */
+.btn{display:inline-flex; align-items:center; gap:8px; padding:12px 18px; border-radius:999px; border:1px solid transparent; font-weight:600; text-decoration:none; transition:all .2s ease;}
+.btn-primary{background:var(--brand-500); color:#fff; box-shadow:var(--shadow-sm)}
+.btn-primary:hover{background:var(--brand-600); transform:translateY(-1px)}
+.btn-ghost{background:transparent; border-color:rgba(42,140,130,.2); color:var(--brand-600)}
+.btn-ghost:hover{background:var(--brand-50)}
+
+/* Accessibility */
+.skip-link{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
+.skip-link:focus{position:fixed; left:16px; top:16px; width:auto; height:auto; padding:8px 12px; background:#000; color:#fff; border-radius:6px; z-index:9999}
+

@@ -1,0 +1,57 @@
+Systems Integration and Architecture - Project Proposal
+
+HealthPaws: One Tap Veterinary System
+Veterinary Record Management System
+
+Introduction:
+Managing veterinary records involves handling multiple details such as pet profiles, vaccination histories, medical records, appointments, and billing. Traditional paper-based or fragmented systems often result in misplaced records, inefficient retrieval, and missed vaccination schedules.
+HealthPaws addresses these issues by providing a centralized digital platform designed for veterinary clinics and pet owners. It ensures accurate, secure, and easily accessible records. Its key feature is the digital vaccination card, giving pet owners convenient access to their pet’s health information anytime, anywhere.
+HealthPaws will be introduced as a Software as a Service (SaaS), requiring subscription for access. SaaS ensures that hosting, maintenance, and database security are managed efficiently.
+
+Objectives:
+To digitize all veterinary records for security, accuracy, and efficiency
+To highlight vaccination management with due date tracking
+To issue digital pet cards linking to complete medical and vaccination history
+
+Scope of the System:
+HealthPaws will include:
+Pet profile management (name, breed, age, photo, owner details).
+Vaccination history with dates, types, due dates, and vet details.
+General medical history tracking (check-ups, treatments, surgeries, prescriptions).
+Appointment scheduling and reminders.
+Billing and payment recording.
+Digital pet cards for vaccination and health info access.
+Search and filter tools for quick record retrieval.
+Reports and analytics for vaccination and clinic performance.
+Supports all veterinary clinics for record tracking.
+Secures pets’ data or record using authentication.
+Features:
+User Authentication and Security
+Separate accounts for veterinarians, clinic staff, and pet owners.
+Role-based access control
+Pet Profile Management
+Add pet details: name, species, breed, gender, age, weight
+Upload pet photo for easy identification
+Owner’s contact details linked to each pet profile
+Multiple pets can be linked to one owner account
+Vaccination Record Management
+Add vaccine type, date given, next due date, and administering vet
+Vaccination history with search & filter options
+Medical Record Management
+Store full medical history
+Digital Pet Card for Owners
+Each pet gets a health card (digital or printable)
+Pet card includes:
+Pet name
+Photo
+Breed
+Owner’s name and contact number
+Vet clinic name
+Appointment Scheduling
+Owners can book vet appointments through the system
+Vets can confirm or reschedule
+Billing & Payment Recording
+Track payments
+Reports & Analytics
+Number of pets vaccinated
+Number of medical-related supplements bought

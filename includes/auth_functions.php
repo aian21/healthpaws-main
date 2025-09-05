@@ -1,0 +1,541 @@
+<?php
+// HealthPaws Authentication Functions
+// Suppress error display to ensure clean output
+error_reporting(0);
+ini_set('display_errors', 0);
+
+session_start();
+
+try {
+    require_once __DIR__ . '/../config/database.php';
+} catch (Exception $e) {
+    // Log error but don't display it
+    error_log("Database config error: " . $e->getMessage());
+    throw new Exception('Database configuration error');
+}
+
+class Auth {
+    private $db;
+    
+    public function __construct() {
+        try {
+            $this->db = new Database();
+        } catch (Exception $e) {
+            error_log("Database connection error: " . $e->getMessage());
+            throw new Exception('Database connection failed');
+        }
+    }
+    
+    /**
+     * Register a new clinic and owner account
+     */
+    public function registerClinic($data) {
+        try {
+            error_log("🔍 registerClinic called with data: " . json_encode($data));
+            
+            $conn = $this->db->getConnection();
+            if (!$conn) {
+                error_log("❌ Database connection failed");
+                throw new Exception('Database connection failed');
+            }
+            
+            error_log("✅ Database connection successful");
+            
+            $conn->beginTransaction();
+            error_log("🔄 Transaction started");
+            
+            // Validate required fields
+            $required_fields = ['clinic_name', 'business_email', 'subdomain', 'owner_password', 'plan'];
+            foreach ($required_fields as $field) {
+                if (empty($data[$field])) {
+                    error_log("❌ Missing required field: $field");
+                    throw new Exception("Missing required field: $field");
+                }
+            }
+            
+            error_log("✅ Required fields validated");
+            
+            // Check if subdomain is available
+            if (!$this->isSubdomainAvailable($data['subdomain'])) {
+                error_log("❌ Subdomain not available: " . $data['subdomain']);
+                throw new Exception("Subdomain '{$data['subdomain']}' is already taken");
+            }
+            
+            error_log("✅ Subdomain availability checked: " . $data['subdomain']);
+            
+            // Check if email is already registered
+            if ($this->isEmailRegistered($data['business_email'])) {
+                error_log("❌ Email already registered: " . $data['business_email']);
+                throw new Exception("Email '{$data['business_email']}' is already registered");
+            }
+            
+            error_log("✅ Email availability checked: " . $data['business_email']);
+            
+            // Create clinic
+            error_log("🏥 Creating clinic...");
+            $clinic_id = $this->createClinic($data);
+            error_log("✅ Clinic created with ID: " . $clinic_id);
+            
+            // Check if user already exists (from email verification)
+            $existing_user = $this->getVerifiedUser($data['business_email']);
+            if ($existing_user) {
+                // Update existing user with password and username
+                $user_id = $this->updateUserForRegistration($existing_user['user_id'], $data['business_email'], $data['owner_password']);
+                error_log("✅ Updated existing user with ID: " . $user_id);
+            } else {
+                // Create new user account
+                error_log("👤 Creating user account...");
+                $user_id = $this->createUser($data['business_email'], $data['owner_password']);
+                error_log("✅ User created with ID: " . $user_id);
+            }
+            
+            // Create owner record
+            error_log("👨‍💼 Creating owner record...");
+            $owner_id = $this->createOwner($user_id, $data);
+            error_log("✅ Owner created with ID: " . $owner_id);
+            
+            // Create user-clinic relationship with Admin role
+            error_log("🔗 Creating UserClinic relationship...");
+            $this->createUserClinic($user_id, $clinic_id, 1); // Role ID 1 = Admin
+            error_log("✅ UserClinic relationship created");
+            
+            // Create subscription
+            error_log("💳 Creating subscription...");
+            $this->createSubscription($clinic_id, $data['plan']);
+            error_log("✅ Subscription created");
+            
+            // Create default veterinarian record if provided
+            if (!empty($data['vet_fname']) && !empty($data['vet_lname'])) {
+                error_log("🐾 Creating veterinarian record...");
+                $this->createVeterinarian($user_id, $clinic_id, $data);
+                error_log("✅ Veterinarian record created");
+            }
+            
+            error_log("💾 Committing transaction...");
+            $conn->commit();
+            error_log("🎉 Transaction committed successfully");
+            
+            $result = [
+                'success' => true,
+                'clinic_id' => $clinic_id,
+                'user_id' => $user_id,
+                'subdomain' => $data['subdomain']
+            ];
+            
+            error_log("📤 Returning success result: " . json_encode($result));
+            return $result;
+            
+        } catch (Exception $e) {
+            error_log("💥 Registration error in registerClinic: " . $e->getMessage());
+            error_log("💥 Error trace: " . $e->getTraceAsString());
+            
+            if (isset($conn) && $conn instanceof PDO) {
+                try {
+                    error_log("🔄 Rolling back transaction...");
+                    $conn->rollback();
+                    error_log("✅ Transaction rolled back");
+                } catch (Exception $rollbackError) {
+                    error_log("❌ Rollback error: " . $rollbackError->getMessage());
+                }
+            }
+            
+            $errorResult = [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+            
+            error_log("📤 Returning error result: " . json_encode($errorResult));
+            return $errorResult;
+        }
+    }
+    
+    /**
+     * Create a new clinic
+     */
+    private function createClinic($data) {
+        $conn = $this->db->getConnection();
+        
+        $stmt = $conn->prepare("
+            INSERT INTO Clinic (clinic_name, address, clinic_phone, clinic_email, clinic_subdomain) 
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $data['clinic_name'],
+            $data['address'] ?? '',
+            $data['clinic_phone'] ?? '',
+            $data['business_email'],
+            $data['subdomain']
+        ]);
+        
+        return $conn->lastInsertId();
+    }
+    
+    /**
+     * Create a new user account
+     */
+    private function createUser($email, $password) {
+        $conn = $this->db->getConnection();
+        
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        
+        $stmt = $conn->prepare("
+            INSERT INTO User (username, email, password, email_verified) 
+            VALUES (?, ?, ?, TRUE)
+        ");
+        
+        $stmt->execute([
+            $email, // Use email as username for now
+            $email,
+            $hashed_password
+        ]);
+        
+        return $conn->lastInsertId();
+    }
+    
+    /**
+     * Create owner record
+     */
+    private function createOwner($user_id, $data) {
+        $conn = $this->db->getConnection();
+        
+        $stmt = $conn->prepare("
+            INSERT INTO Owner (user_id, owner_fname, owner_lname, owner_phone) 
+            VALUES (?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $user_id,
+            $data['owner_fname'] ?? 'Owner',
+            $data['owner_lname'] ?? 'Admin',
+            $data['owner_phone'] ?? ''
+        ]);
+        
+        return $conn->lastInsertId();
+    }
+    
+    /**
+     * Create veterinarian record
+     */
+    private function createVeterinarian($user_id, $clinic_id, $data) {
+        $conn = $this->db->getConnection();
+        
+        $stmt = $conn->prepare("
+            INSERT INTO Veterinarian (user_id, vet_fname, vet_lname, specialization, license_number, clinic_id) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $user_id,
+            $data['vet_fname'],
+            $data['vet_lname'],
+            $data['specialization'] ?? 'General Practice',
+            $data['license_number'] ?? '',
+            $clinic_id
+        ]);
+        
+        return $conn->lastInsertId();
+    }
+    
+    /**
+     * Create user-clinic relationship with role
+     */
+    private function createUserClinic($user_id, $clinic_id, $role_id) {
+        $conn = $this->db->getConnection();
+        
+        $stmt = $conn->prepare("
+            INSERT INTO UserClinic (user_id, clinic_id, role_id) 
+            VALUES (?, ?, ?)
+        ");
+        
+        $stmt->execute([$user_id, $clinic_id, $role_id]);
+    }
+    
+    /**
+     * Create subscription
+     */
+    private function createSubscription($clinic_id, $plan) {
+        $conn = $this->db->getConnection();
+        
+        $stmt = $conn->prepare("
+            INSERT INTO Subscription (clinic_id, start_date, end_date, status, plan) 
+            VALUES (?, NOW(), DATE_ADD(NOW(), INTERVAL 14 DAY), 'Trial', ?)
+        ");
+        
+        $stmt->execute([$clinic_id, $plan]);
+    }
+    
+    /**
+     * Check if email is already registered (has completed full registration)
+     */
+    public function isEmailRegistered($email) {
+        try {
+            $conn = $this->db->getConnection();
+            
+            // Check if user exists AND has a real password (meaning they've completed registration)
+            $stmt = $conn->prepare("
+                SELECT COUNT(*) as count 
+                FROM User 
+                WHERE email = ? AND password IS NOT NULL AND password != '' AND password != 'TEMP_VERIFICATION'
+            ");
+            $stmt->execute([$email]);
+            
+            $result = $stmt->fetch();
+            return $result['count'] > 0;
+        } catch (Exception $e) {
+            error_log("Email check error: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Check if subdomain is available
+     */
+    public function isSubdomainAvailable($subdomain) {
+        try {
+            $conn = $this->db->getConnection();
+            
+            // Check if subdomain is already taken
+            $stmt = $conn->prepare("SELECT COUNT(*) as count FROM Clinic WHERE clinic_subdomain = ?");
+            $stmt->execute([$subdomain]);
+            
+            $result = $stmt->fetch();
+            return $result['count'] === 0;
+        } catch (Exception $e) {
+            error_log("Subdomain check error: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Authenticate user login
+     */
+    public function login($email, $password) {
+        try {
+            $conn = $this->db->getConnection();
+            
+            // Get user with role and clinic information through UserClinic table
+            $stmt = $conn->prepare("
+                SELECT u.*, r.role_name, c.clinic_id, c.clinic_name, c.clinic_subdomain, uc.role_id
+                FROM User u
+                INNER JOIN UserClinic uc ON u.user_id = uc.user_id
+                INNER JOIN Role r ON uc.role_id = r.role_id
+                INNER JOIN Clinic c ON uc.clinic_id = c.clinic_id
+                WHERE u.email = ?
+                LIMIT 1
+            ");
+            
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+            
+            if (!$user || !password_verify($password, $user['password'])) {
+                return [
+                    'success' => false,
+                    'error' => 'Invalid email or password'
+                ];
+            }
+            
+            if (!$user['email_verified']) {
+                return [
+                    'success' => false,
+                    'error' => 'Please verify your email before logging in'
+                ];
+            }
+            
+            // Set session data
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['role'] = $user['role_name'];
+            $_SESSION['clinic_id'] = $user['clinic_id'];
+            $_SESSION['clinic_name'] = $user['clinic_name'];
+            $_SESSION['clinic_subdomain'] = $user['clinic_subdomain'];
+            
+            return [
+                'success' => true,
+                'user' => $user
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Login error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Login failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Logout user
+     */
+    public function logout() {
+        try {
+            session_destroy();
+            return ['success' => true];
+        } catch (Exception $e) {
+            error_log("Logout error: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+    
+    /**
+     * Check if user is logged in
+     */
+    public function isLoggedIn() {
+        return isset($_SESSION['user_id']);
+    }
+    
+    /**
+     * Get current user data
+     */
+    public function getCurrentUser() {
+        if (!$this->isLoggedIn()) {
+            return null;
+        }
+        
+        try {
+            $conn = $this->db->getConnection();
+            
+            $stmt = $conn->prepare("
+                SELECT u.*, r.role_name, c.clinic_id, c.clinic_name, c.clinic_subdomain
+                FROM User u
+                INNER JOIN UserClinic uc ON u.user_id = uc.user_id
+                INNER JOIN Role r ON uc.role_id = r.role_id
+                INNER JOIN Clinic c ON uc.clinic_id = c.clinic_id
+                WHERE u.user_id = ?
+            ");
+            
+            $stmt->execute([$_SESSION['user_id']]);
+            return $stmt->fetch();
+        } catch (Exception $e) {
+            error_log("Get current user error: " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Send verification email (placeholder)
+     */
+    public function sendVerificationEmail($email, $code) {
+        // In a real system, this would send an actual email
+        // For now, we'll just return success
+        return [
+            'success' => true,
+            'message' => "Verification code sent to $email (Demo: $code)"
+        ];
+    }
+    
+    /**
+     * Get verified user by email (who hasn't completed full registration yet)
+     */
+    private function getVerifiedUser($email) {
+        try {
+            $conn = $this->db->getConnection();
+            
+            $stmt = $conn->prepare("
+                SELECT user_id, email, email_verified 
+                FROM User 
+                WHERE email = ? AND email_verified = TRUE 
+                AND password = 'TEMP_VERIFICATION'
+                LIMIT 1
+            ");
+            
+            $stmt->execute([$email]);
+            return $stmt->fetch();
+        } catch (Exception $e) {
+            error_log("Get verified user error: " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Update user password
+     */
+    private function updateUserPassword($user_id, $password) {
+        try {
+            $conn = $this->db->getConnection();
+            
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            
+            $stmt = $conn->prepare("
+                UPDATE User 
+                SET password = ? 
+                WHERE user_id = ?
+            ");
+            
+            $stmt->execute([$hashed_password, $user_id]);
+            return $user_id;
+        } catch (Exception $e) {
+            error_log("Update user password error: " . $e->getMessage());
+            throw new Exception('Failed to update user password');
+        }
+    }
+    
+    /**
+     * Update user for registration (password and username)
+     */
+    private function updateUserForRegistration($user_id, $email, $password) {
+        try {
+            $conn = $this->db->getConnection();
+            
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            
+            $stmt = $conn->prepare("
+                UPDATE User 
+                SET username = ?, password = ?, email_verified = TRUE 
+                WHERE user_id = ?
+            ");
+            
+            $stmt->execute([$email, $hashed_password, $user_id]);
+            return $user_id;
+        } catch (Exception $e) {
+            error_log("Update user for registration error: " . $e->getMessage());
+            throw new Exception('Failed to update user for registration');
+        }
+    }
+    
+    /**
+     * Verify email with code
+     */
+    public function verifyEmail($email, $code) {
+        try {
+            $conn = $this->db->getConnection();
+            
+            // For demo purposes, accept any 6-digit code
+            if (strlen($code) === 6 && is_numeric($code)) {
+                $stmt = $conn->prepare("
+                    UPDATE User 
+                    SET email_verified = TRUE, verification_code = NULL 
+                    WHERE email = ?
+                ");
+                
+                $stmt->execute([$email]);
+                
+                return [
+                    'success' => true,
+                    'message' => 'Email verified successfully'
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'error' => 'Invalid verification code'
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Email verification error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Verification failed: ' . $e->getMessage()
+            ];
+        }
+    }
+}
+
+// Initialize auth instance
+try {
+    $auth = new Auth();
+} catch (Exception $e) {
+    error_log("Auth initialization error: " . $e->getMessage());
+    $auth = null;
+}
+?>

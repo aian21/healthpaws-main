@@ -1,0 +1,197 @@
+
+
+
+
+
+
+
+
+
+
+
+A Database Design for HealthPaws
+Veterinary Record and Management System
+
+Relation Schema
+User Table
+Relation Name: User
+Attributes (Columns)
+user_id (INT, Primary Key)
+username (VARCHAR(255))
+email (VARCHAR(255))
+password (VARCHAR(255)) 
+user_photo (VARCHAR(255))
+email_verified (BOOLEAN, DEFAULT FALSE)
+verification_code (VARCHAR(6))
+verification_expires (TIMESTAMP)
+Constraints:
+Primary Key: user_id
+
+Role Table
+Relation Name: Role
+Attributes (Columns)
+role_id (INT, Primary Key)
+role_name (VARCHAR(255))
+Constraints:
+Primary Key: role_id 
+UserRole Table
+Relation Name: UserRole
+Attributes (Columns)
+userrole_id (INT, Primary Key
+user_id (INT, Foreign Key referencing User table)
+role_id (INT, Foreign Key referencing Role table)
+Constraints:
+Primary Key: userrole_id
+Foreign Key: user_id references User (user_id)
+Foreign Key: role_id references Role (role_id)
+
+UserClinic Table
+Relation Name: UserClinic
+Attributes (Columns):
+userclinic_id (INT, Primary Key)
+user_id (INT, Foreign Key referencing User table)
+clinic_id (INT, Foreign Key referencing Clinic table)
+role_id (INT, Foreign Key referencing Role table)
+Constraints: 
+Primary Key: userclinic_id
+Foreign Key: user_id references User (user_id)
+Foreign Key: clinic_id references Clinic (clinic_id)
+Foreign Key: role_id references Role (role_id)
+
+Clinic Table
+Relation Name: Clinic
+Attributes (Columns)
+clinic_id (INT, Primary Key)
+clinic_name (VARCHAR(255))
+address (VARCHAR(255))
+clinc_phone (VARCHAR(255))
+clinic_email (VARCHAR(255))
+created_at (TIMESTAMP)
+Constraints: 
+Primary Key: clinic_id
+
+Owner Table
+Relation Name: Owner
+Attributes (Columns):
+owner_id (INT, Primary Key)
+user_id (INT, Foreign Key referencing User table)
+owner_fname (VARCHAR(255))
+owner_lname (VARCHAR(255))
+owner_phone (VARCHAR(255))
+Constraints:
+Primary Key: owner_id
+Foreign Key: user_id references User (user_id)
+
+Pet Table
+Relation Name: Pet
+Attributes (Columns):
+pet_id (INT, Primary Key)
+owner_id (INT, Foreign Key referencing Owner table)
+default_clinic_id (INT, Foreign Key referencing Clinic table)
+pet_name (VARCHAR(255))
+species (VARCHAR(255))
+breed (VARCHAR(255))
+gender (VARCHAR(255))
+birthday (DATE)
+weight (DECIMAL(6,2))
+pet_photo (VARCHAR(255))
+Constraints:
+Primary Key: pet_id
+Foreign Key: owner_id references Owner (owner_id)
+Foreign Key: clinic_id references Clinic (clinic_id)
+
+Veterinarian Table
+Relation Name: Veterinarian 
+Attributes (Columns):
+vet_id (INT, Primary Key)
+user_id (INT, Foreign Key referencing User table)
+vet_fname (VARCHAR(255))
+vet_lname (VARCHAR(255))
+specialization (VARCHAR(255))
+license_number (VARCHAR(255))
+clinic_id (INT, Foreign Key referencing Clinic table)
+Constraints:
+Primary Key: vet_id
+Foreign Key: user_id references User (user_id)
+Foreign Key: clinic_id references Clinic (clinic_id)
+
+Vaccine Table
+Relation Name: Vaccine
+Attributes (Columns):
+vaccine_id (INT, Primary Key)
+vaccine_name (VARCHAR(255))
+description (TEXT)
+Constraints:
+Primary Key: vaccine_id
+
+Vaccination Table
+Relation Name: Vaccination
+Attributes (Columns):
+vaccination_id (INT, Primary Key)
+vaccine_id (INT, Foreign Key referencing Vaccine table)
+pet_id (INT, Foreign Key referencing Pet table)
+vet_id (INT, Foreign Key referencing Veterinarian table)
+date_given (DATE)
+next_due_date (DATE)
+Constraints:
+Primary Key: vaccination_id
+Foreign Key: vaccine_id references Vaccine (vaccine_id)
+Foreign Key: pet_id references Pet (pet_id)
+Foreign Key: vet_id references Veterinarian (vet_id)
+
+
+MedicalRecord Table
+Relation Name: MedicalRecord
+Attributes (Columns):
+record_id (INT, Primary Key)
+pet_id (INT, Foreign Key referencing Pet table)
+vet_id (INT, Foreign Key referencing Veterinarian table) 
+visit_date (DATE) 
+diagnosis (TEXT) 
+treatment (TEXT) 
+prescription (TEXT) 
+notes (TEXT) 
+Constraints:
+Primary Key: record_id
+Foreign Key: pet_id references Pet (pet_id)
+Foreign Key: vet_id references Veterinarian (vet_id)
+
+Appointment Table
+Relation Name: Appointment
+Attributes (Columns):
+appointment_id (INT, Primary Key)
+pet_id (INT, Foreign Key referencing Pet table)
+vet_id (INT, Foreign Key referencing Veterinarian table)
+clinic_id (INT, Foreign Key referencing Clinic table)
+appointment_date (DATE)
+status (VARCHAR(255))
+Constraints
+Primary Key: appointment_id
+Foreign Key: pet_id references Pet (pet_id)
+Foreign Key: vet_id references Veterinarian (vet_id)
+Foreign Key: clinic_id references Clinic (clinic_id)
+
+Payment Table
+Relation Name: Payment
+Attributes (Columns):
+payment_id (INT, Primary Key)
+appointment_id (INT, Foreign Key referencing Appointment table)
+amount (DECIMAL(10,2))
+method (VARCHAR(255))
+payment_status (VARCHAR(255))
+payment_date (DATE)
+Constraints:
+Primary Key: payment_id
+Foreign Key: appointment_id references Appointment (appointment_id)
+
+Subscription Table
+Relation Name: Subscription
+Attributes (Columns):
+subscription_id (INT, Primary Key) 
+clinic_id (INT, Foreign Key referencing Clinic table) 
+Start_date (TIMESTAMP) 
+end_date (TIMESTAMP) 
+Status (VARCHAR(255)) 
+plan (VARCHAR(255)) 
+
+
