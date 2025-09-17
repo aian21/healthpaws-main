@@ -300,7 +300,7 @@ class Auth {
             $stmt->execute([$subdomain]);
             
             $result = $stmt->fetch();
-            return $result['count'] === 0;
+            return ((int)$result['count']) === 0;
         } catch (Exception $e) {
             error_log("Subdomain check error: " . $e->getMessage());
             return false;
