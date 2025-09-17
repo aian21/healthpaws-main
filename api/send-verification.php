@@ -41,11 +41,15 @@ try {
         throw new Exception('Invalid email format');
     }
     
-    // Check if email is already registered
+    // Check if email is already registered (with real password, not just verification)
     $database = new Database();
     $conn = $database->getConnection();
     
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM User WHERE email = ?");
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as count 
+        FROM User 
+        WHERE email = ? AND password IS NOT NULL AND password != '' AND password != 'TEMP_VERIFICATION'
+    ");
     $stmt->execute([$email]);
     $result = $stmt->fetch();
     
@@ -60,15 +64,36 @@ try {
     // Calculate expiry time
     $expiry_time = date('Y-m-d H:i:s', strtotime('+' . EmailConfig::$verification_code_expiry . ' minutes'));
     
-    // Store verification code in database (temporary record)
+    // Check if there's already a temporary verification record for this email
     $stmt = $conn->prepare("
-        INSERT INTO User (username, email, password, email_verified, verification_code, verification_expires) 
-        VALUES (?, ?, 'TEMP_VERIFICATION', FALSE, ?, ?)
+        SELECT user_id FROM User 
+        WHERE email = ? AND password = 'TEMP_VERIFICATION' AND email_verified = FALSE
+        LIMIT 1
     ");
-    $stmt->execute([$email, $email, $verification_code, $expiry_time]);
+    $stmt->execute([$email]);
+    $existing_temp_user = $stmt->fetch();
     
-    $temp_user_id = $conn->lastInsertId();
-    error_log("Temporary user created with ID: $temp_user_id");
+    if ($existing_temp_user) {
+        // Update existing temporary record with new verification code
+        $stmt = $conn->prepare("
+            UPDATE User 
+            SET verification_code = ?, verification_expires = ? 
+            WHERE user_id = ?
+        ");
+        $stmt->execute([$verification_code, $expiry_time, $existing_temp_user['user_id']]);
+        $temp_user_id = $existing_temp_user['user_id'];
+        error_log("Updated existing temporary user with ID: $temp_user_id");
+    } else {
+        // Create new temporary record
+        $stmt = $conn->prepare("
+            INSERT INTO User (username, email, password, email_verified, verification_code, verification_expires) 
+            VALUES (?, ?, 'TEMP_VERIFICATION', FALSE, ?, ?)
+        ");
+        $stmt->execute([$email, $email, $verification_code, $expiry_time]);
+        
+        $temp_user_id = $conn->lastInsertId();
+        error_log("Temporary user created with ID: $temp_user_id");
+    }
     
     // Send verification email
     $email_result = $emailService->sendVerificationEmail($email, $verification_code, $clinic_name);

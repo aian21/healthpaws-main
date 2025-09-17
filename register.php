@@ -697,6 +697,11 @@ $page_title = "Register Clinic — HealthPaws";
                         showToast('Please use a different email address or login to your existing account.', 'error');
                         return false;
                     }
+                    // Allow verified but incomplete registrations to proceed
+                    if (emailStatus && emailStatus.classList.contains('verified-incomplete')) {
+                        // Skip email verification step since email is already verified
+                        emailVerified = true;
+                    }
                 }
             }
             
@@ -778,10 +783,16 @@ $page_title = "Register Clinic — HealthPaws";
         document.getElementById('nextBtn').addEventListener('click', async () => {
             if (await validateStep() && currentStep < totalSteps) {
                 currentStep++;
+                
+                // Skip verification step if email is already verified
+                if (currentStep === 3 && emailVerified) {
+                    currentStep++; // Skip to step 4
+                }
+                
                 updateProgress();
                 
-                // Auto-send verification code when reaching step 3
-                if (currentStep === 3) {
+                // Auto-send verification code when reaching step 3 (only if not already verified)
+                if (currentStep === 3 && !emailVerified) {
                     sendVerificationCode();
                 }
             }
@@ -790,6 +801,12 @@ $page_title = "Register Clinic — HealthPaws";
         document.getElementById('backBtn').addEventListener('click', () => {
             if (currentStep > 1) {
                 currentStep--;
+                
+                // Skip verification step if going back and email is already verified
+                if (currentStep === 3 && emailVerified) {
+                    currentStep--; // Skip to step 2
+                }
+                
                 updateProgress();
             }
         });
@@ -860,14 +877,25 @@ $page_title = "Register Clinic — HealthPaws";
                             statusElement.style.cssText = 'font-size: 12px; margin-top: 4px;';
                             
                             if (emailCheck.exists) {
-                                statusElement.innerHTML = `
-                                    <div style="color: #dc3545;">
-                                        ❌ Email already registered
-                                        <br>
-                                        <a href="login.php" style="color: #007bff; text-decoration: underline;">Login to your account</a>
-                                    </div>
-                                `;
-                                statusElement.className += ' unavailable';
+                                if (emailCheck.verified_but_incomplete) {
+                                    statusElement.innerHTML = `
+                                        <div style="color: #f59e0b;">
+                                            ⚠️ Email verified but registration incomplete
+                                            <br>
+                                            <span style="font-size: 11px;">You can continue with registration or <a href="login.php" style="color: #007bff; text-decoration: underline;">login</a></span>
+                                        </div>
+                                    `;
+                                    statusElement.className += ' verified-incomplete';
+                                } else {
+                                    statusElement.innerHTML = `
+                                        <div style="color: #dc3545;">
+                                            ❌ Email already registered
+                                            <br>
+                                            <a href="login.php" style="color: #007bff; text-decoration: underline;">Login to your account</a>
+                                        </div>
+                                    `;
+                                    statusElement.className += ' unavailable';
+                                }
                             } else {
                                 statusElement.textContent = '✅ Email is available';
                                 statusElement.className += ' available';

@@ -27,19 +27,42 @@ try {
         throw new Exception('Invalid email format');
     }
     
-    // Check if email exists
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM User WHERE email = ?");
+    // Check if email exists and get detailed status
+    $stmt = $conn->prepare("
+        SELECT user_id, email, password, email_verified 
+        FROM User 
+        WHERE email = ? 
+        LIMIT 1
+    ");
     $stmt->execute([$email]);
-    $result = $stmt->fetch();
+    $user = $stmt->fetch();
     
-    $exists = $result['count'] > 0;
+    $exists = false;
+    $verified_but_incomplete = false;
+    $message = 'Email is available';
+    
+    if ($user) {
+        $exists = true;
+        
+        // Check if user has completed full registration (has real password)
+        if ($user['password'] !== 'TEMP_VERIFICATION' && !empty($user['password'])) {
+            $message = 'Email already registered';
+        } else if ($user['email_verified'] == 1) {
+            // Email is verified but registration is incomplete
+            $verified_but_incomplete = true;
+            $message = 'Email verified but registration incomplete';
+        } else {
+            $message = 'Email verification pending';
+        }
+    }
     
     echo json_encode([
         'success' => true,
         'data' => [
             'email' => $email,
             'exists' => $exists,
-            'message' => $exists ? 'Email already registered' : 'Email is available'
+            'verified_but_incomplete' => $verified_but_incomplete,
+            'message' => $message
         ]
     ]);
     
