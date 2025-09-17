@@ -126,7 +126,7 @@ $page_title = "HealthPaws Vet Clinic";
                     <div class="logo-chip">LabConnect</div>
                 </div>
             </div>
-        </section>
+        </section>  
 
         <section id="testimonials" class="section testimonials">
             <div class="container">
