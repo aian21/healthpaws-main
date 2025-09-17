@@ -147,9 +147,6 @@ $page_title = "HealthPaws Vet Clinic";
             </div>
         </section>
 
-        
-
-
 
         <section id="security" class="section security">
             <div class="container">
