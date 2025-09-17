@@ -6,22 +6,31 @@ img,svg,video,canvas{display:block;max-width:100%}
 input,button,textarea,select{font:inherit}
 /* Theme */
 :root{
-  --brand-500:#2a8c82; /* teal */
-  --brand-600:#1f6f69;
-  --brand-50:#e9f7f6;
+  --brand-500:#0ea5e9; /* sky blue */
+  --brand-600:#0284c7;
+  --brand-700:#0369a1;
+  --brand-50:#f0f9ff;
+  --brand-100:#e0f2fe;
   --accent-500:#f59e0b; /* amber */
-  --ink-900:#0a1214;
-  --ink-700:#253135;
-  --ink-600:#344449;
-  --ink-500:#4e676e;
-  --bg-0:#f7fbfb;
+  --accent-600:#d97706;
+  --purple-500:#8b5cf6;
+  --purple-600:#7c3aed;
+  --ink-900:#0f172a;
+  --ink-800:#1e293b;
+  --ink-700:#334155;
+  --ink-600:#475569;
+  --ink-500:#64748b;
+  --ink-400:#94a3b8;
+  --bg-0:#f8fafc;
   --bg-1:#ffffff;
-  --radius-lg:20px;
-  --radius-md:14px;
-  --radius-sm:10px;
-  --shadow-lg:0 20px 50px rgba(22, 46, 46, .15);
-  --shadow-md:0 10px 30px rgba(22, 46, 46, .12);
-  --shadow-sm:0 4px 12px rgba(22, 46, 46, .10);
+  --radius-xl:24px;
+  --radius-lg:16px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --shadow-xl:0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-lg:0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-md:0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm:0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 body{
   font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -30,24 +39,27 @@ body{
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 }
 .container{width:min(1100px, 92%); margin-inline:auto}
-.section{padding:80px 0}
+.section{padding:64px 0}
 h1,h2,h3{color:var(--ink-900); letter-spacing:-0.02em}
-h1{font-family:"Poppins", system-ui, sans-serif; font-weight:700; font-size:clamp(32px, 4.2vw, 48px)}
-h2{font-weight:700; font-size:clamp(24px, 3vw, 36px); margin-bottom:18px}
-h3{font-weight:600; font-size:20px}
+h1{font-family:"Poppins", system-ui, sans-serif; font-weight:800; font-size:clamp(32px, 4.2vw, 48px); letter-spacing:-0.025em}
+h2{font-weight:700; font-size:clamp(28px, 3.5vw, 40px); margin-bottom:20px; letter-spacing:-0.02em}
+h3{font-weight:600; font-size:22px; letter-spacing:-0.01em}
 p{line-height:1.7}
 ul{padding-left:1.2rem}
 a{color:var(--brand-600); text-decoration:none}
 a:hover{text-decoration:underline}
 
 /* Buttons */
-.btn{display:inline-flex; align-items:center; gap:8px; padding:12px 18px; border-radius:999px; border:1px solid transparent; font-weight:600; text-decoration:none; transition:all .2s ease;}
-.btn-primary{background:var(--brand-500); color:#fff; box-shadow:var(--shadow-sm)}
-.btn-primary:hover{background:var(--brand-600); transform:translateY(-1px)}
-.btn-ghost{background:transparent; border-color:rgba(42,140,130,.2); color:var(--brand-600)}
-.btn-ghost:hover{background:var(--brand-50)}
+.btn{display:inline-flex; align-items:center; gap:8px; padding:14px 24px; border-radius:var(--radius-lg); border:1px solid transparent; font-weight:600; text-decoration:none; transition:all .3s cubic-bezier(0.4, 0, 0.2, 1); position:relative; overflow:hidden}
+.btn-primary{background:linear-gradient(135deg, var(--brand-500), var(--brand-600)); color:#fff; box-shadow:var(--shadow-md)}
+.btn-primary:hover{background:linear-gradient(135deg, var(--brand-600), var(--brand-700)); transform:translateY(-2px); box-shadow:var(--shadow-lg)}
+.btn-ghost{background:rgba(255,255,255,0.8); border-color:rgba(15,23,42,.15); color:var(--ink-700); backdrop-filter:blur(12px)}
+.btn-ghost:hover{background:rgba(255,255,255,0.95); border-color:var(--brand-500); color:var(--brand-600); transform:translateY(-1px)}
 
 /* Accessibility */
 .skip-link{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
 .skip-link:focus{position:fixed; left:16px; top:16px; width:auto; height:auto; padding:8px 12px; background:#000; color:#fff; border-radius:6px; z-index:9999}
+
+/* Utility */
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
 

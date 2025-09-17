@@ -72,3 +72,5 @@ document.addEventListener('click', function(e){
   });
 });
 
+// (Removed audience tabs and pet lookup JS per new design)
+
