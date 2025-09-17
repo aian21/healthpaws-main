@@ -18,4 +18,4 @@ jobs:
         server: ftp.healthpaws.app     # CHANGE THIS to your actual FTP server (often ftp.yourdomain.com)
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /home/healglso/public_html/   # <-- Your correct absolute path
+        server-dir: public_html/   # <-- Your correct absolute path
