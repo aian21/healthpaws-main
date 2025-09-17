@@ -67,7 +67,7 @@ try {
     // Check if there's already a temporary verification record for this email
     $stmt = $conn->prepare("
         SELECT user_id FROM User 
-        WHERE email = ? AND password = 'TEMP_VERIFICATION' AND email_verified = FALSE
+        WHERE email = ? AND password = 'TEMP_VERIFICATION'
         LIMIT 1
     ");
     $stmt->execute([$email]);
@@ -77,7 +77,7 @@ try {
         // Update existing temporary record with new verification code
         $stmt = $conn->prepare("
             UPDATE User 
-            SET verification_code = ?, verification_expires = ? 
+            SET verification_code = ?, verification_expires = ?, email_verified = FALSE 
             WHERE user_id = ?
         ");
         $stmt->execute([$verification_code, $expiry_time, $existing_temp_user['user_id']]);

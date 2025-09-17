@@ -45,10 +45,11 @@ try {
     $database = new Database();
     $conn = $database->getConnection();
     
+    // Fetch the most recent TEMP_VERIFICATION user for this email
     $stmt = $conn->prepare("
-        SELECT user_id, verification_code, verification_expires 
+        SELECT user_id, verification_code, verification_expires, email_verified, password 
         FROM User 
-        WHERE email = ? AND email_verified = FALSE
+        WHERE email = ? 
         ORDER BY user_id DESC 
         LIMIT 1
     ");
@@ -56,17 +57,35 @@ try {
     $user = $stmt->fetch();
     
     if (!$user) {
-        throw new Exception('No pending verification found for this email');
+        throw new Exception('No verification record found for this email');
+    }
+    
+    // If user already completed full registration (real password), block verification
+    if (!empty($user['password']) && $user['password'] !== 'TEMP_VERIFICATION') {
+        throw new Exception('Email is already registered');
+    }
+    
+    // If already verified (e.g., duplicate submission), treat as success
+    if ($user['email_verified']) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Email verified successfully',
+            'data' => [
+                'email' => $email,
+                'user_id' => $user['user_id']
+            ]
+        ]);
+        return;
     }
     
     // Check if code has expired
     $now = date('Y-m-d H:i:s');
-    if ($user['verification_expires'] < $now) {
+    if (!empty($user['verification_expires']) && $user['verification_expires'] < $now) {
         throw new Exception('Verification code has expired. Please request a new one.');
     }
     
     // Check if code matches
-    if ($user['verification_code'] !== $code) {
+    if (empty($user['verification_code']) || $user['verification_code'] !== $code) {
         throw new Exception('Invalid verification code');
     }
     
