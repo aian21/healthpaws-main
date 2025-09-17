@@ -61,8 +61,8 @@ class PHPMailerEmailService {
             $mail->SMTPSecure = EmailConfig::$smtp_encryption;
             $mail->Port = EmailConfig::$smtp_port;
             
-            // Set timeouts
-            $mail->Timeout = 30;
+            // Set timeouts (shorter so API returns faster on failures)
+            $mail->Timeout = 15;
             $mail->SMTPKeepAlive = false;
             
             // Fix certificate verification issues

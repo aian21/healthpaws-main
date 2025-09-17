@@ -153,3 +153,4 @@ SELECT owner_id, 'appointment_reminder', 'email', 1 FROM Owner WHERE owner_id NO
 
 INSERT INTO NotificationPreference (owner_id, notification_type, delivery_method, advance_days) 
 SELECT owner_id, 'checkup_reminder', 'email', 30 FROM Owner WHERE owner_id NOT IN (SELECT owner_id FROM NotificationPreference WHERE notification_type = 'checkup_reminder');
+

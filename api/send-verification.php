@@ -9,6 +9,10 @@ header('Access-Control-Allow-Headers: Content-Type');
 error_log("=== SEND VERIFICATION EMAIL API CALLED ===");
 
 try {
+    // Ensure API doesn't hang too long
+    set_time_limit(30);
+    ini_set('default_socket_timeout', '15');
+
     require_once __DIR__ . '/../config/database.php';
     require_once __DIR__ . '/../includes/phpmailer_email_service.php';
     

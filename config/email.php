@@ -7,10 +7,10 @@ ini_set('display_errors', 0);
 class EmailConfig {
     // SMTP Configuration for Namecheap Shared Hosting
     public static $smtp_host = 'mail.healthpaws.app'; // Use mail.yourdomain.com for Namecheap
-    public static $smtp_port = 465; // 587 for TLS, 465 for SSL (Namecheap supports both)
+    public static $smtp_port = 587; // 587 for TLS, 465 for SSL (Namecheap supports both)
     public static $smtp_username = 'no-reply@healthpaws.app'; // Your full email address
     public static $smtp_password = 'S.!L#s,MElh$'; // Your email password (not app password)
-    public static $smtp_encryption = 'ssl'; // 'ssl' is more reliable for Namecheap
+    public static $smtp_encryption = 'tls'; // 'ssl' is more reliable for Namecheap
     
     // Email settings
     public static $from_email = 'no-reply@healthpaws.app';

@@ -1,34 +1,50 @@
 <?php
-// Database configuration for HealthPaws
-// Suppress error display to ensure clean output
-error_reporting(0);
-ini_set('display_errors', 0);
-
 class Database {
-    private $host = '127.0.0.1'; // Correct for external connections
-    private $db_name = 'healglso_healthpaws';
-    private $username = 'healglso_checker';
-    private $password = 'f7mqGuS7#uv('; // (REMOVED FOR PRIVACY)
-    private $conn;
+    private $host = "localhost";  // Standard for Namecheap shared hosting
+    private $dbname = "healglso_healthpaws";  // Replace with your full DB name (e.g., healglso_mydb)
+    private $username = "healglso_checker";  // Replace with your full username (e.g., healglso_dbuser)
+    private $password = "N9hMR2Skafj6S7T";  // Replace with the password you set
+    private $conn = null;
 
-    public function getConnection() {
-        $this->conn = null;
-
+    public function connect() {
         try {
             $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";port=3306;dbname=" . $this->db_name,
+                "mysql:host=$this->host;dbname=$this->dbname;charset=utf8mb4",
                 $this->username,
-                $this->password
+                $this->password,
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false
+                ]
             );
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        } catch(PDOException $exception) {
-            // Log error but don't display it
-            error_log("Database connection error: " . $exception->getMessage());
-            throw new Exception("Database connection failed");
+            return $this->conn;
+        } catch (PDOException $e) {
+            // Temporarily display error for debugging (REMOVE IN PRODUCTION)
+            echo "<p style='color: red;'>PDO Connection Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+            // Log for server records
+            error_log("Connection failed: " . $e->getMessage());
+            return null;
         }
+    }
 
-        return $this->conn;
+    // Backwards-compatible with existing code
+    public function getConnection() {
+        return $this->connect();
+    }
+
+    public function checkConnection() {
+        if ($this->conn !== null) {
+            try {
+                $this->conn->query("SELECT 1");
+                return true;
+            } catch (PDOException $e) {
+                echo "<p style='color: red;'>Connection Check Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+                error_log("Connection check failed: " . $e->getMessage());
+                return false;
+            }
+        }
+        return false;
     }
 
     public function closeConnection() {

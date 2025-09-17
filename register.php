@@ -576,7 +576,7 @@ $page_title = "Register Clinic — HealthPaws";
         }
 
         // API functions
-        async function apiCall(url, data = null, method = 'POST') {
+        async function apiCall(url, data = null, method = 'POST', signal = null) {
             try {
                 console.log('🔄 API Call Started:', method, url, data);
                 
@@ -586,6 +586,7 @@ $page_title = "Register Clinic — HealthPaws";
                         'Content-Type': 'application/json',
                     }
                 };
+                if (signal) { options.signal = signal; }
                 
                 if (data && method !== 'GET') {
                     options.body = JSON.stringify(data);
@@ -987,7 +988,7 @@ $page_title = "Register Clinic — HealthPaws";
                 if (firstBox) {
                     firstBox.focus();
                 }
-            }, 10000); // 10 second timeout
+            }, 25000); // 25 second UI fallback timeout
             
             try {
                 verificationMessage.textContent = 'Sending verification code...';
@@ -999,12 +1000,12 @@ $page_title = "Register Clinic — HealthPaws";
                 
                 // Add timeout to the API call
                 const controller = new AbortController();
-                const timeoutApiId = setTimeout(() => controller.abort(), 8000); // 8 second API timeout
+                const timeoutApiId = setTimeout(() => controller.abort(), 20000); // 20 second API timeout
                 
                 const result = await apiCall('api/send-verification.php', {
                     email: email,
                     clinic_name: clinicName
-                });
+                }, 'POST', controller.signal);
                 
                 clearTimeout(timeoutApiId);
                 clearTimeout(timeoutId);
