@@ -11,8 +11,8 @@ $page_title = "Pricing — HealthPaws";
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/base.css">
-    <link rel="stylesheet" href="styles/landing.css">
+    <link rel="stylesheet" href="styles/base.css?v=1.0">
+    <link rel="stylesheet" href="styles/landing.css?v=1.0">
     <style>
         .pricing-hero{text-align:center; padding:60px 0 40px}
         .pricing-hero h1{font-size:clamp(32px, 4vw, 48px); margin-bottom:16px}

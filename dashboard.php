@@ -185,8 +185,8 @@ $page_title = $current_clinic['clinic_name'] . " - HealthPaws Dashboard";
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/base.css">
-    <link rel="stylesheet" href="styles/landing.css">
+    <link rel="stylesheet" href="styles/base.css?v=1.0">
+    <link rel="stylesheet" href="styles/landing.css?v=1.0">
     <style>
         /* Modern sticky header for dashboard */
         .dash-header{position:sticky; top:14px; z-index:60}
