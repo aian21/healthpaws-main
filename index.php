@@ -130,7 +130,7 @@ $page_title = "HealthPaws Vet Clinic";
 
 
 
-        
+
         <section id="testimonials" class="section testimonials">
             <div class="container">
                 <h2>What Pet Parents Say</h2>
@@ -146,6 +146,8 @@ $page_title = "HealthPaws Vet Clinic";
                 </div>
             </div>
         </section>
+
+        
 
         <section id="security" class="section security">
             <div class="container">
