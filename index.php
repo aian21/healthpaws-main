@@ -20,7 +20,7 @@ $page_title = "HealthPaws Vet Clinic";
     <header class="site-header" data-header>
         <div class="header-inner container">
             <a href="#hero" class="brand">
-                <img src="assets/images/logo.png" alt="HealthPaws" class="brand-logo-img">
+                <span class="brand-text-logo">HealthPaws</span>
             </a>
             <nav class="nav" aria-label="Primary">
                 <button class="nav-toggle" aria-expanded="false" aria-controls="nav-list">☰</button>
@@ -60,7 +60,12 @@ $page_title = "HealthPaws Vet Clinic";
                     </ul>
                 </div>
                 <div class="hero-media">
-                    <img src="assets/images/hero.png" alt="Veterinary software preview">
+                    <div class="hero-placeholder">
+                        <div class="placeholder-content">
+                            <h3>HealthPaws Dashboard</h3>
+                            <p>Modern veterinary management system</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
