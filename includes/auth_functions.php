@@ -529,13 +529,249 @@ class Auth {
             ];
         }
     }
+    
+    /**
+     * Register a new pet owner account
+     */
+    public function registerPetOwner($data) {
+        try {
+            error_log("🔍 registerPetOwner called with data: " . json_encode($data));
+            
+            $conn = $this->db->getConnection();
+            if (!$conn) {
+                error_log("❌ Database connection failed");
+                throw new Exception('Database connection failed');
+            }
+            
+            error_log("✅ Database connection successful");
+            
+            $conn->beginTransaction();
+            error_log("🔄 Transaction started");
+            
+            // Validate required fields
+            $required_fields = ['firstName', 'lastName', 'email', 'phone', 'address', 'password', 'petName', 'species'];
+            foreach ($required_fields as $field) {
+                if (empty($data[$field])) {
+                    error_log("❌ Missing required field: $field");
+                    throw new Exception("Missing required field: $field");
+                }
+            }
+            error_log("✅ Required fields validation passed");
+            
+            // Check if email already exists
+            $stmt = $conn->prepare("SELECT user_id FROM User WHERE email = ?");
+            $stmt->execute([$data['email']]);
+            if ($stmt->fetch()) {
+                error_log("❌ Email already exists: " . $data['email']);
+                throw new Exception('An account with this email already exists');
+            }
+            error_log("✅ Email uniqueness check passed");
+            
+            // Generate username from email
+            $username = strtolower(explode('@', $data['email'])[0]);
+            $original_username = $username;
+            $counter = 1;
+            
+            // Ensure username uniqueness
+            while (true) {
+                $stmt = $conn->prepare("SELECT user_id FROM User WHERE username = ?");
+                $stmt->execute([$username]);
+                if (!$stmt->fetch()) {
+                    break;
+                }
+                $username = $original_username . $counter;
+                $counter++;
+            }
+            error_log("✅ Generated unique username: $username");
+            
+            // Hash password
+            $hashed_password = password_hash($data['password'], PASSWORD_DEFAULT);
+            error_log("✅ Password hashed");
+            
+            // Create User record
+            $stmt = $conn->prepare("
+                INSERT INTO User (username, email, password, email_verified, created_at) 
+                VALUES (?, ?, ?, TRUE, NOW())
+            ");
+            $stmt->execute([$username, $data['email'], $hashed_password]);
+            $user_id = $conn->lastInsertId();
+            error_log("✅ User created with ID: $user_id");
+            
+            // Assign Owner role
+            $stmt = $conn->prepare("SELECT role_id FROM Role WHERE role_name = 'Owner'");
+            $stmt->execute();
+            $owner_role = $stmt->fetch();
+            
+            if (!$owner_role) {
+                error_log("❌ Owner role not found");
+                throw new Exception('Owner role not found in system');
+            }
+            
+            $stmt = $conn->prepare("
+                INSERT INTO UserRole (user_id, role_id) 
+                VALUES (?, ?)
+            ");
+            $stmt->execute([$user_id, $owner_role['role_id']]);
+            error_log("✅ Owner role assigned");
+            
+            // Create Owner record with enhanced fields
+            $stmt = $conn->prepare("
+                INSERT INTO Owner (
+                    user_id, owner_fname, owner_lname, owner_phone, 
+                    address, city, state, postal_code, country,
+                    preferred_language, timezone, is_active, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, '', '', '', 'Philippines', 'en', 'Asia/Manila', TRUE, NOW(), NOW())
+            ");
+            $stmt->execute([
+                $user_id,
+                $data['firstName'],
+                $data['lastName'],
+                $data['phone'],
+                $data['address']
+            ]);
+            $owner_id = $conn->lastInsertId();
+            error_log("✅ Owner created with ID: $owner_id");
+            
+            // Create Pet record
+            $birthday = !empty($data['birthday']) ? $data['birthday'] : null;
+            $weight = !empty($data['weight']) ? floatval($data['weight']) : null;
+            
+            $stmt = $conn->prepare("
+                INSERT INTO Pet (
+                    owner_id, pet_name, species, breed, gender, birthday, weight,
+                    microchip_number, insurance_provider, insurance_policy_number,
+                    special_needs, is_active, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, NOW(), NOW())
+            ");
+            $stmt->execute([
+                $owner_id,
+                $data['petName'],
+                $data['species'],
+                $data['breed'],
+                $data['gender'],
+                $birthday,
+                $weight,
+                $data['microchipNumber'],
+                $data['insuranceProvider'],
+                $data['insurancePolicyNumber'],
+                $data['specialNeeds']
+            ]);
+            $pet_id = $conn->lastInsertId();
+            error_log("✅ Pet created with ID: $pet_id");
+            
+            // Generate Digital Pet Card
+            $card_code = $this->generateDigitalCardCode($pet_id);
+            $stmt = $conn->prepare("
+                INSERT INTO DigitalPetCard (pet_id, card_code, card_status, issued_date, access_count)
+                VALUES (?, ?, 'Active', NOW(), 0)
+            ");
+            $stmt->execute([$pet_id, $card_code]);
+            error_log("✅ Digital pet card created with code: $card_code");
+            
+            // Create Emergency Contact if provided
+            if (!empty($data['emergencyName']) && !empty($data['emergencyPhone'])) {
+                $stmt = $conn->prepare("
+                    INSERT INTO EmergencyContact (
+                        owner_id, contact_name, relationship, phone, 
+                        is_primary, is_active, created_at
+                    ) VALUES (?, ?, ?, ?, TRUE, TRUE, NOW())
+                ");
+                $stmt->execute([
+                    $owner_id,
+                    $data['emergencyName'],
+                    $data['emergencyRelationship'],
+                    $data['emergencyPhone']
+                ]);
+                error_log("✅ Emergency contact created");
+            }
+            
+            // Create Notification Preferences
+            $notification_types = [
+                'vaccination_reminder' => 7,
+                'appointment_reminder' => 1,
+                'checkup_reminder' => 30,
+                'medical_update' => 0
+            ];
+            
+            $selected_notifications = $data['notifications'] ?? [];
+            $notification_method = $data['notificationMethod'] ?? 'email';
+            
+            foreach ($notification_types as $type => $default_days) {
+                $is_enabled = in_array($type, $selected_notifications);
+                
+                $stmt = $conn->prepare("
+                    INSERT INTO NotificationPreference (
+                        owner_id, notification_type, delivery_method, 
+                        is_enabled, advance_days, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+                ");
+                $stmt->execute([
+                    $owner_id,
+                    $type,
+                    $notification_method,
+                    $is_enabled,
+                    $default_days
+                ]);
+            }
+            error_log("✅ Notification preferences created");
+            
+            // Log the registration activity
+            $stmt = $conn->prepare("
+                INSERT INTO OwnerActivityLog (
+                    owner_id, pet_id, activity_type, description, 
+                    ip_address, user_agent, created_at
+                ) VALUES (?, ?, 'registration', 'Pet owner account created', ?, ?, NOW())
+            ");
+            $stmt->execute([
+                $owner_id,
+                $pet_id,
+                $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
+            ]);
+            error_log("✅ Activity logged");
+            
+            $conn->commit();
+            error_log("✅ Transaction committed successfully");
+            
+            return [
+                'success' => true,
+                'user_id' => $user_id,
+                'owner_id' => $owner_id,
+                'pet_id' => $pet_id,
+                'digital_card_code' => $card_code,
+                'message' => 'Pet owner account created successfully'
+            ];
+            
+        } catch (Exception $e) {
+            if (isset($conn)) {
+                $conn->rollback();
+                error_log("🔄 Transaction rolled back due to error");
+            }
+            error_log("❌ registerPetOwner error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Generate a unique digital card code for a pet
+     */
+    private function generateDigitalCardCode($pet_id) {
+        // Generate a unique code: HP (HealthPaws) + YYYY + random string + pet_id
+        $year = date('Y');
+        $random = strtoupper(substr(md5(uniqid()), 0, 6));
+        return "HP{$year}{$random}" . str_pad($pet_id, 4, '0', STR_PAD_LEFT);
+    }
 }
 
 // Initialize auth instance
 try {
     $auth = new Auth();
+    error_log("✅ Auth instance created successfully");
 } catch (Exception $e) {
-    error_log("Auth initialization error: " . $e->getMessage());
+    error_log("❌ Failed to create Auth instance: " . $e->getMessage());
     $auth = null;
 }
 ?>

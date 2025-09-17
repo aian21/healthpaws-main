@@ -5,10 +5,10 @@ error_reporting(0);
 ini_set('display_errors', 0);
 
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'healthpaws';
-    private $username = 'root';
-    private $password = '';
+    private $host = '127.0.0.1'; // Correct for external connections
+    private $db_name = 'healglso_healthpaws';
+    private $username = 'healglso_checker';
+    private $password = 'f7mqGuS7#uv('; // (REMOVED FOR PRIVACY)
     private $conn;
 
     public function getConnection() {
@@ -16,7 +16,7 @@ class Database {
 
         try {
             $this->conn = new PDO(
-                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
+                "mysql:host=" . $this->host . ";port=3306;dbname=" . $this->db_name,
                 $this->username,
                 $this->password
             );

@@ -36,7 +36,7 @@ $page_title = "HealthPaws Vet Clinic";
                     <button class="btn btn-ghost" data-dropdown-toggle aria-expanded="false">Login ▾</button>
                     <div class="dropdown-menu" role="menu" aria-hidden="true">
                         <a role="menuitem" href="login.php">Log in</a>
-                        <a role="menuitem" href="register.php">Register</a>
+                        <a role="menuitem" href="#" data-open-modal="register-type">Register</a>
                     </div>
                 </div>
             </div>
@@ -420,38 +420,63 @@ $page_title = "HealthPaws Vet Clinic";
 
         <section id="pricing" class="section pricing">
             <div class="container">
-                <h2>Simple, transparent pricing</h2>
+                <h2>Choose Your Perfect Plan</h2>
+                <p class="pricing-subtitle">Transparent pricing designed for veterinary practices of all sizes</p>
                 <div class="pricing-grid">
                     <div class="price-card">
-                        <h3>Starter</h3>
-                        <p class="price"><span>$49</span>/month</p>
+                        <div class="plan-badge">For Small Clinics</div>
+                        <h3>Starter Plan</h3>
+                        <p class="price"><span>₱2,500</span>/month</p>
+                        <p class="plan-description">Perfect for independent vets and small clinics</p>
                         <ul>
-                            <li>1 location, 3 users</li>
-                            <li>Appointments & EMR</li>
-                            <li>Email reminders</li>
+                            <li>Up to 200 pet records</li>
+                            <li>Basic pet profiles (name, breed, age, weight, owner info)</li>
+                            <li>Vaccination records with due date tracking</li>
+                            <li>Digital pet cards (QR code, view-only)</li>
+                            <li>Basic appointment scheduling</li>
+                            <li>Owner self-registration with email/OTP</li>
+                            <li>Email reminders for vaccines & appointments</li>
                         </ul>
-                        <a href="register.php" class="btn btn-ghost">Start free</a>
+                        <a href="#" data-open-modal="register-type" class="btn btn-ghost">Start Free Trial</a>
                     </div>
                     <div class="price-card featured">
-                        <h3>Pro</h3>
-                        <p class="price"><span>$129</span>/month</p>
+                        <div class="plan-badge popular">Most Popular</div>
+                        <h3>Pro Plan</h3>
+                        <p class="price"><span>₱6,500</span>/month</p>
+                        <p class="plan-description">Ideal for mid-sized clinics with growing needs</p>
                         <ul>
-                            <li>3 locations, 10 users</li>
-                            <li>Billing & payments</li>
-                            <li>SMS reminders</li>
+                            <li>Up to 5,000 pet records</li>
+                            <li><strong>Everything in Starter, plus:</strong></li>
+                            <li>Full medical history tracking (diagnosis, treatments, prescriptions)</li>
+                            <li>Billing & payment recording</li>
+                            <li>Multi-user accounts (vets, staff, owners) with role-based access</li>
+                            <li>Advanced search & filtering</li>
+                            <li>Reports & analytics (vaccination trends, appointments, revenues)</li>
+                            <li>SMS + email reminders</li>
                         </ul>
-                        <a href="pricing.php" class="btn btn-primary">View pricing</a>
+                        <a href="#" data-open-modal="register-type" class="btn btn-primary">Start Free Trial</a>
                     </div>
                     <div class="price-card">
-                        <h3>Enterprise</h3>
-                        <p class="price">Custom</p>
+                        <div class="plan-badge">For Hospitals</div>
+                        <h3>Enterprise Plan</h3>
+                        <p class="price"><span>₱15,000</span>/month</p>
+                        <p class="plan-description">Complete solution for veterinary hospitals & multi-branches</p>
                         <ul>
-                            <li>Unlimited users</li>
-                            <li>SLA & SSO</li>
-                            <li>Dedicated success</li>
+                            <li>Unlimited pet records</li>
+                            <li><strong>Everything in Pro, plus:</strong></li>
+                            <li>Multi-clinic / branch support with shared records</li>
+                            <li>Advanced dashboards & analytics (clinic performance, trends)</li>
+                            <li>Custom branding (clinic logo on digital pet cards and reports)</li>
+                            <li>Data backup & disaster recovery</li>
+                            <li>Priority support & training</li>
+                            <li>Custom integrations</li>
                         </ul>
-                        <a href="register.php" class="btn btn-ghost">Talk to sales</a>
+                        <a href="#" data-open-modal="register-type" class="btn btn-ghost">Contact Sales</a>
                     </div>
+                </div>
+                <div class="pricing-footer">
+                    <p>All plans include a <strong>14-day free trial</strong> • No setup fees • Cancel anytime</p>
+                    <p class="pricing-note">Need a custom solution? <a href="#" class="pricing-link">Contact our team</a> for enterprise pricing and features.</p>
                 </div>
             </div>
         </section>
@@ -474,7 +499,7 @@ $page_title = "HealthPaws Vet Clinic";
             <div class="container">
                 <h2>Run your clinic on HealthPaws</h2>
                 <p>Start your free trial today or schedule a 15‑minute demo.</p>
-                <a href="register.php" class="btn btn-primary">Start free trial</a>
+                <a href="#" data-open-modal="register-type" class="btn btn-primary">Start free trial</a>
             </div>
         </section>
     </main>
@@ -488,6 +513,63 @@ $page_title = "HealthPaws Vet Clinic";
             </nav>
         </div>
     </footer>
+
+    <!-- Registration Type Selection Modal -->
+    <div class="modal" id="modal-register-type" aria-hidden="true" role="dialog" aria-labelledby="register-type-title">
+        <div class="modal-backdrop" data-close-modal></div>
+        <div class="modal-dialog registration-modal" role="document">
+            <button class="modal-close" aria-label="Close" data-close-modal>×</button>
+            <div class="modal-header">
+                <h3 id="register-type-title">Choose Your Registration Type</h3>
+                <p>Select the option that best describes you to get started with HealthPaws.</p>
+            </div>
+            <div class="registration-options">
+                <div class="registration-option" data-type="clinic">
+                    <div class="option-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 5L8 21l4-7 4 7-4-16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="option-content">
+                        <h4>Veterinary Clinic</h4>
+                        <p>I'm a veterinarian, clinic owner, or staff member looking to manage pet records and appointments.</p>
+                        <ul class="option-features">
+                            <li>Manage patient records</li>
+                            <li>Schedule appointments</li>
+                            <li>Track vaccinations</li>
+                            <li>Billing & payments</li>
+                        </ul>
+                    </div>
+                    <a href="register.php" class="btn btn-primary option-btn">
+                        Register as Clinic
+                    </a>
+                </div>
+                <div class="registration-option" data-type="owner">
+                    <div class="option-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2"/>
+                            <path d="M20.2 20.2 18 18M6 6l-2.2-2.2M18 6l2.2-2.2M6 18l-2.2 2.2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-content">
+                        <h4>Pet Owner</h4>
+                        <p>I'm a pet parent who wants to keep my furry family member's health records organized and accessible.</p>
+                        <ul class="option-features">
+                            <li>Digital pet health cards</li>
+                            <li>Access records anywhere</li>
+                            <li>Share with any vet</li>
+                            <li>Vaccination reminders</li>
+                        </ul>
+                    </div>
+                    <a href="register-owner.php" class="btn btn-primary option-btn">
+                        Register as Pet Owner
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Demo Modal -->
     <div class="modal" id="modal-demo" aria-hidden="true" role="dialog" aria-labelledby="demo-title">

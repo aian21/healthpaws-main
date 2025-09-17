@@ -20,11 +20,62 @@
 .stepper{display:flex; gap:8px; margin:6px 0 10px}
 .stepper .dot{width:10px; height:10px; border-radius:999px; background:rgba(42,140,130,.25)}
 .stepper .dot.is-active{background:var(--brand-600)}
-.steps{position:relative; overflow:visible; min-height:0}
+.steps{position:relative; overflow:visible; min-height:420px}
 .step{position:absolute; inset:0; opacity:0; transform:translateX(40px); transition:transform .28s ease, opacity .28s ease; pointer-events:none; visibility:hidden}
 .step.is-active{opacity:1; transform:translateX(0); pointer-events:auto; visibility:visible}
 .step.is-left{opacity:0; transform:translateX(-40px)}
-.wizard-actions{display:flex; justify-content:space-between; gap:10px; margin-top:12px}
+.wizard-actions{display:flex; justify-content:space-between; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid rgba(42,140,130,.1)}
+
+/* Simple step content styling for owner form */
+.step-content {
+    padding: 20px 0;
+}
+
+.step-content h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink-900);
+    margin-bottom: 8px;
+}
+
+.step-content h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-900);
+    margin: 24px 0 8px 0;
+}
+
+.step-content p {
+    color: var(--ink-600);
+    margin-bottom: 16px;
+}
+
+/* Owner registration v2 - scoped redesign */
+#owner-register-form .step {
+  position: static;           /* no absolute overlay */
+  inset: auto;
+  opacity: 1;                 /* keep content visible */
+  transform: none;
+  pointer-events: auto;
+  visibility: visible;
+  display: none;              /* only active step shows */
+}
+
+#owner-register-form .step.is-active { display: block; }
+
+#owner-register-form .step-content {
+  background: #fff;
+  border: 1px solid rgba(42,140,130,.12);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+#owner-register-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+@media (max-width: 640px) {
+  #owner-register-form .row { grid-template-columns: 1fr; }
+}
 
 /* Progress bar */
 .progress{height:6px; background:rgba(42,140,130,.15); border-radius:999px; overflow:hidden; margin:10px 0 12px}
@@ -64,7 +115,7 @@
 /* Verification form specific styles */
 .verification-actions{display:flex; gap:10px; margin-top:16px}
 .verification-actions .btn{flex:1}
-.mock-verification-info{border-left:4px solid var(--brand-600)}
+.mock-verification-info{border-left:4px solid var(--brand-600); background:rgba(42,140,130,.05); padding:12px; border-radius:8px; margin-top:16px}
 
 /* Inline email verification styles */
 .email-verification-section{border:1px solid rgba(42,140,130,.16)}
@@ -267,5 +318,62 @@
   0% { transform: scale(0); opacity: 0; }
   50% { transform: scale(1.2); }
   100% { transform: scale(1); opacity: 1; }
+}
+
+
+@media (max-width: 640px) {
+    .auth-card {
+        width: 98%;
+        padding: 16px;
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .row {
+        grid-template-columns: 1fr;
+    }
+    
+    .notification-item .field-help {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+    
+    .field-section {
+        padding: 16px;
+    }
+    
+    .owner-step-content {
+        gap: 16px;
+        padding: 10px 0;
+    }
+    
+    .verification-boxes {
+        gap: 6px;
+    }
+    
+    .verification-box {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .terms-container {
+        height: 150px;
+    }
+    
+    .wizard-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .wizard-actions > div {
+        display: flex;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .wizard-actions .btn {
+        flex: 1;
+    }
 }
 

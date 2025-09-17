@@ -223,17 +223,41 @@ section[id]{scroll-margin-top:50px}
 .list-check li::before{content:"✓"; position:absolute; left:0; top:0; color:var(--brand-600); font-weight:700}
 
 /* Pricing */
-.pricing{background:linear-gradient(135deg, var(--bg-0) 0%, rgba(139,92,246,0.05) 100%)}
-.pricing .pricing-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:24px}
-.price-card{background:rgba(255,255,255,.95); border:1px solid rgba(15,23,42,.06); border-radius:var(--radius-xl); padding:32px 24px; box-shadow:var(--shadow-md); backdrop-filter:blur(16px); transition:all .4s ease; position:relative}
-.price-card:hover{transform:translateY(-6px); box-shadow:var(--shadow-xl)}
-.price-card .price{margin:12px 0 20px; color:var(--ink-900)}
-.price-card .price span{font-size:36px; font-weight:800; background:linear-gradient(135deg, var(--brand-600), var(--purple-600)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text}
-.price-card ul{padding-left:0; margin:12px 0 24px; list-style:none}
-.price-card ul li{position:relative; padding-left:24px; margin:8px 0}
-.price-card ul li::before{content:'✓'; position:absolute; left:0; color:var(--brand-600); font-weight:700}
-.price-card.featured{border-color:var(--brand-500); box-shadow:var(--shadow-xl); transform:scale(1.05)}
-.price-card.featured::before{content:'Most Popular'; position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg, var(--brand-500), var(--brand-600)); color:white; padding:6px 16px; border-radius:var(--radius-md); font-size:12px; font-weight:600}
+.pricing{background:linear-gradient(135deg, var(--bg-0) 0%, rgba(139,92,246,0.05) 100%); padding:100px 0; position:relative}
+.pricing h2{text-align:center; font-size:clamp(32px, 4vw, 48px); margin-bottom:16px; background:linear-gradient(135deg, var(--ink-900), var(--brand-600)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; position:relative; z-index:10}
+.pricing-subtitle{text-align:center; font-size:18px; color:var(--ink-600); margin:0 auto 60px; max-width:600px; line-height:1.6; position:relative; z-index:10}
+.pricing .pricing-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; margin-bottom:60px; align-items:start; position:relative; z-index:1}
+.price-card{background:rgba(255,255,255,.98); border:1px solid rgba(15,23,42,.06); border-radius:24px; padding:0; box-shadow:0 10px 30px rgba(42,140,130,.08), 0 2px 8px rgba(42,140,130,.04); position:relative; overflow:hidden; height:auto; z-index:2}
+
+/* Plan Badges */
+.plan-badge{background:linear-gradient(135deg, var(--ink-700), var(--ink-800)); color:white; padding:8px 20px; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; text-align:center}
+.plan-badge.popular{background:linear-gradient(135deg, var(--brand-500), var(--brand-600))}
+
+/* Card Content */
+.price-card h3{font-size:28px; font-weight:800; margin:24px 24px 12px; color:var(--ink-900)}
+.price-card .price{margin:0 24px 16px; color:var(--ink-900)}
+.price-card .price span{font-size:42px; font-weight:800; background:linear-gradient(135deg, var(--brand-600), var(--purple-600)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text}
+.plan-description{font-size:16px; color:var(--ink-600); margin:0 24px 24px; line-height:1.5}
+
+/* Feature Lists */
+.price-card ul{padding:0 24px; margin:0 0 32px; list-style:none}
+.price-card ul li{position:relative; padding:8px 0 8px 24px; margin:0; font-size:14px; line-height:1.5; color:var(--ink-700); border-bottom:1px solid rgba(15,23,42,.04)}
+.price-card ul li:last-child{border-bottom:none}
+.price-card ul li::before{content:'✓'; position:absolute; left:0; top:8px; color:var(--brand-600); font-weight:700; font-size:12px}
+.price-card ul li strong{color:var(--ink-900); font-weight:700}
+
+/* Card Actions */
+.price-card .btn{margin:0 24px 32px; width:calc(100% - 48px); text-align:center; padding:16px; font-weight:700; border-radius:12px}
+
+/* Featured Card */
+.price-card.featured{border-color:var(--brand-500); box-shadow:0 20px 50px rgba(42,140,130,.15), 0 4px 12px rgba(42,140,130,.08)}
+
+/* Pricing Footer */
+.pricing-footer{text-align:center; padding-top:40px; border-top:1px solid rgba(15,23,42,.08); position:relative; z-index:10}
+.pricing-footer p{color:var(--ink-600); margin:8px 0; font-size:16px; position:relative; z-index:10}
+.pricing-note{font-size:14px !important; position:relative; z-index:10}
+.pricing-link{color:var(--brand-600); text-decoration:none; font-weight:600}
+.pricing-link:hover{color:var(--brand-700); text-decoration:underline}
 
 /* CTA */
 .cta{background:linear-gradient(135deg, var(--brand-500), var(--purple-600)); color:white}
@@ -274,7 +298,9 @@ input, textarea{width:100%; margin-top:6px; padding:10px 12px; border:1px solid 
   /* (overview/scope removed) */
   .stats .stats-row .stat + .stat::before{display:none}
   .services .cards{grid-template-columns:1fr 1fr}
-  .pricing .pricing-grid{grid-template-columns:1fr}
+  .pricing .pricing-grid{grid-template-columns:1fr; gap:30px}
+  .pricing{padding:80px 0}
+  .pricing-subtitle{margin-bottom:40px}
   .testimonials-grid{grid-template-columns:1fr 1fr}
   .testimonials{padding:60px 0}
   .testimonials-header{margin-bottom:40px}
@@ -291,6 +317,8 @@ input, textarea{width:100%; margin-top:6px; padding:10px 12px; border:1px solid 
   .key-features .features-grid{grid-template-columns:1fr}
   .testimonials-grid{grid-template-columns:1fr}
   .testimonial-card{padding:24px}
+  .pricing{padding:60px 0}
+  .price-card ul li{font-size:13px; padding:6px 0 6px 20px}
   .spotlights{padding:60px 0}
   .spotlight-card .actions{flex-direction:column}
   .spotlight-card .card-icon{width:64px; height:64px; margin:24px auto 20px}
@@ -308,5 +336,172 @@ input, textarea{width:100%; margin-top:6px; padding:10px 12px; border:1px solid 
   .pet-age{font-size:10px}
   .qr-code-modern{width:32px; height:32px}
   .qr-pattern{width:24px; height:24px}
+}
+
+/* Registration Type Selection Modal */
+.registration-modal {
+  max-width: 800px;
+  width: 90vw;
+}
+
+.registration-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.registration-option {
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+  background: var(--bg-0);
+  position: relative;
+  overflow: hidden;
+}
+
+.registration-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.registration-option:hover {
+  border-color: var(--brand-300);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.registration-option:hover::before {
+  opacity: 1;
+}
+
+.option-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--brand-50), var(--brand-100));
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.option-icon svg {
+  width: 32px;
+  height: 32px;
+  color: var(--brand-600);
+  transition: all 0.3s ease;
+}
+
+.registration-option:hover .option-icon {
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+  transform: scale(1.1);
+}
+
+.registration-option:hover .option-icon svg {
+  color: white;
+}
+
+.option-content h4 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-bottom: 12px;
+}
+
+.option-content p {
+  color: var(--ink-600);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.option-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  text-align: left;
+}
+
+.option-features li {
+  color: var(--ink-600);
+  font-size: 14px;
+  padding: 6px 0;
+  position: relative;
+  padding-left: 20px;
+}
+
+.option-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--brand-600);
+  font-weight: bold;
+}
+
+.option-btn {
+  width: 100%;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.registration-option:hover .option-btn {
+  background: var(--brand-600);
+  transform: translateY(-2px);
+}
+
+/* Mobile styles for registration modal */
+@media (max-width: 768px) {
+  .registration-modal {
+    max-width: 95vw;
+  }
+  
+  .registration-options {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .registration-option {
+    padding: 24px 20px;
+  }
+  
+  .option-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 16px;
+  }
+  
+  .option-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .option-content h4 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .option-content p {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .option-features {
+    margin-bottom: 20px;
+  }
+  
+  .option-features li {
+    font-size: 13px;
+    padding: 4px 0;
+  }
 }
 
